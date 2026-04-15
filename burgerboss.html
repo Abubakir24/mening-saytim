@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BurgerBoss — Toshkentning eng mazali burgerlari</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0d0d0b;
+      color: #f0ece3;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes burgerBounce {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-8px) rotate(2deg); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    @keyframes sizzle {
+      0%,100% { transform: scale(1); opacity:1; }
+      50%     { transform: scale(1.05); opacity:0.85; }
+    }
+
+    /* HERO */
+    .hero {
+      background: #0d0d0b;
+      padding: 72px 24px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid #2a1a08;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(224,123,42,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(180,80,20,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 1; animation: fadeUp 0.7s ease both; }
+    .logo-wrap { display: inline-block; }
+
+    /* YANGI LOGOTIP */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 8px;
+    }
+    .logo-icon {
+      width: 72px;
+      height: 72px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: burgerBounce 3s ease-in-out infinite;
+    }
+    .logo-icon svg {
+      width: 72px;
+      height: 72px;
+      filter: drop-shadow(0 4px 16px rgba(224,123,42,0.5));
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 11vw, 96px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -3px;
+      color: #e07b2a;
+      text-shadow: 0 2px 40px rgba(224,123,42,0.25);
+    }
+    .logo span { color: #f0ece3; }
+    .tagline {
+      font-size: 12px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #7a5535;
+      margin-top: 10px;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-badge {
+      background: rgba(224,123,42,0.12);
+      border: 1px solid rgba(224,123,42,0.25);
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 12px;
+      color: #e07b2a;
+      letter-spacing: 1px;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,13,11,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1e1208;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 20px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 40px;
+      color: #6a4e35;
+      padding: 9px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.22s;
+    }
+    nav button:hover { color: #e07b2a; border-color: rgba(224,123,42,0.3); }
+    nav button.active {
+      background: #e07b2a;
+      color: #0d0d0b;
+      border-color: #e07b2a;
+      font-weight: 600;
+    }
+
+    /* SECTIONS */
+    .section { display: none; padding: 40px 20px 60px; max-width: 960px; margin: 0 auto; }
+    .section.active { display: block; animation: fadeUp 0.4s ease both; }
+    .sec-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      color: #e07b2a;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sec-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, #2a1a08, transparent);
+    }
+
+    /* CATEGORY TABS */
+    .cat-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .cat-tab {
+      background: #1a1208;
+      border: 1px solid #2a1a08;
+      border-radius: 40px;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: #7a5535;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-tab:hover, .cat-tab.active {
+      background: #e07b2a;
+      border-color: #e07b2a;
+      color: #0d0d0b;
+      font-weight: 600;
+    }
+
+    /* MENU GRID */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .menu-card {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .menu-card:hover {
+      border-color: rgba(224,123,42,0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(224,123,42,0.08);
+    }
+    .menu-card.selected { border-color: #e07b2a; background: #1c1108; }
+    .card-img {
+      height: 150px;
+      background: #0d0a04;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .menu-card:hover .card-img img {
+      transform: scale(1.07);
+    }
+    .card-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(13,10,4,0.6) 100%);
+    }
+    .card-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #f0ece3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .card-badge {
+      background: #e07b2a;
+      color: #0d0d0b;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .card-desc { font-size: 12px; color: #5a4030; margin-top: 4px; line-height: 1.6; flex: 1; }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .card-price { font-size: 17px; font-weight: 700; color: #e07b2a; }
+    .card-price small { font-size: 11px; font-weight: 400; color: #5a4030; }
+    .qty-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0d0a04;
+      border: 1px solid #2a1a08;
+      border-radius: 40px;
+      padding: 4px 10px;
+    }
+    .qty-btn {
+      background: none;
+      border: none;
+      color: #e07b2a;
+      font-size: 18px;
+      cursor: pointer;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .qty-btn:hover { background: rgba(224,123,42,0.15); }
+    .qty-num { font-size: 14px; font-weight: 600; color: #f0ece3; min-width: 16px; text-align: center; }
+
+    /* CART */
+    .cart-panel {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-top: 28px;
+      display: none;
+    }
+    .cart-panel.show { display: block; animation: fadeUp 0.3s ease both; }
+    .cart-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: #e07b2a;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2a1a08;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1008;
+      font-size: 14px;
+    }
+    .cart-item-name { color: #c0a070; }
+    .cart-item-right { display: flex; align-items: center; gap: 12px; }
+    .cart-item-price { color: #e07b2a; font-weight: 600; }
+    .cart-remove {
+      background: none;
+      border: none;
+      color: #5a3020;
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .cart-remove:hover { color: #e07b2a; }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .cart-total-label { color: #7a5535; }
+    .cart-total-price { color: #f0ece3; font-size: 22px; }
+    .order-btn {
+      width: 100%;
+      margin-top: 16px;
+      background: #e07b2a;
+      border: none;
+      border-radius: 10px;
+      color: #0d0d0b;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .order-btn:hover { background: #f59040; transform: translateY(-1px); }
+    .order-btn:active { transform: translateY(0); }
+
+    /* SUCCESS */
+    .success-toast {
+      display: none;
+      background: #0d2010;
+      border: 1px solid #2a5a2a;
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: #5fcf7f;
+      font-size: 14px;
+      margin-top: 14px;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    /* FORMS */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 18px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #5a4030;
+      margin-bottom: 8px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: #f0ece3;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: #e07b2a;
+      box-shadow: 0 0 0 3px rgba(224,123,42,0.1);
+    }
+    .form-select option { background: #130f07; }
+    .form-textarea { resize: vertical; min-height: 90px; }
+
+    /* TIME GRID */
+    .time-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .time-btn {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: #7a5535;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .time-btn:hover { border-color: rgba(224,123,42,0.4); color: #e07b2a; }
+    .time-btn.sel {
+      background: #e07b2a;
+      border-color: #e07b2a;
+      color: #0d0d0b;
+      font-weight: 600;
+    }
+
+    /* SUBMIT BTN */
+    .submit-btn {
+      width: 100%;
+      background: #e07b2a;
+      border: none;
+      border-radius: 10px;
+      color: #0d0d0b;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .submit-btn:hover { background: #f59040; transform: translateY(-1px); }
+
+    /* BAND QILINGAN JOYLAR */
+    .bookings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .booking-card {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 14px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+    .booking-card:hover { border-color: rgba(224,123,42,0.3); }
+    .booking-info { display: flex; flex-direction: column; gap: 4px; }
+    .booking-name { font-family: 'Playfair Display', serif; font-size: 17px; color: #f0ece3; font-weight: 700; }
+    .booking-details { font-size: 13px; color: #8a6a50; }
+    .booking-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .booking-tag {
+      background: rgba(224,123,42,0.12);
+      border: 1px solid rgba(224,123,42,0.25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #e07b2a;
+    }
+    .booking-cancel {
+      background: rgba(180,40,40,0.1);
+      border: 1px solid rgba(180,40,40,0.25);
+      border-radius: 8px;
+      padding: 7px 14px;
+      color: #c05050;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .booking-cancel:hover { background: rgba(180,40,40,0.2); color: #e07070; }
+    .no-bookings {
+      background: #130f07;
+      border: 1px dashed #2a1a08;
+      border-radius: 14px;
+      padding: 40px;
+      text-align: center;
+      color: #4a3020;
+      font-size: 15px;
+    }
+
+    /* BUYURTMALARIM */
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .order-card {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 16px;
+      padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+    .order-card:hover { border-color: rgba(224,123,42,0.3); }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2a1a08;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-id {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      color: #f0ece3;
+      font-weight: 700;
+    }
+    .order-status {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .order-status.delivered { background: rgba(60,160,80,0.15); color: #5fcf7f; border: 1px solid rgba(60,160,80,0.3); }
+    .order-status.cooking   { background: rgba(224,123,42,0.15); color: #e07b2a; border: 1px solid rgba(224,123,42,0.3); }
+    .order-status.pending   { background: rgba(100,100,140,0.15); color: #aaa0cc; border: 1px solid rgba(100,100,140,0.3); }
+    .order-items-list { margin-bottom: 10px; }
+    .order-item-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 14px;
+      color: #8a6a50;
+      border-bottom: 1px solid #1a1008;
+    }
+    .order-item-row:last-child { border-bottom: none; }
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-date { font-size: 12px; color: #4a3020; }
+    .order-total-price { font-size: 18px; font-weight: 700; color: #e07b2a; }
+    .no-orders {
+      background: #130f07;
+      border: 1px dashed #2a1a08;
+      border-radius: 14px;
+      padding: 40px;
+      text-align: center;
+      color: #4a3020;
+      font-size: 15px;
+    }
+
+    /* COMMENTS */
+    .comments-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+    .comment-card {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: border-color 0.2s;
+    }
+    .comment-card:hover { border-color: rgba(224,123,42,0.25); }
+    .c-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #e07b2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0d0d0b;
+      flex-shrink: 0;
+    }
+    .c-name { font-weight: 600; font-size: 15px; color: #f0ece3; }
+    .c-meta { font-size: 12px; color: #5a4030; margin-top: 2px; }
+    .stars { color: #e07b2a; font-size: 14px; letter-spacing: 2px; }
+    .stars.gray { color: #2a1a08; }
+    .c-text { font-size: 14px; color: #8a6a50; line-height: 1.65; }
+    .star-row { display: flex; gap: 6px; margin-top: 6px; }
+    .star-pick {
+      font-size: 26px;
+      cursor: pointer;
+      color: #2a1a08;
+      transition: color 0.15s, transform 0.15s;
+      user-select: none;
+    }
+    .star-pick:hover { transform: scale(1.2); }
+    .star-pick.lit { color: #e07b2a; }
+
+    /* ABOUT */
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .info-card {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 14px;
+      padding: 22px 16px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .info-card:hover { border-color: rgba(224,123,42,0.3); }
+    .info-icon { font-size: 34px; margin-bottom: 10px; }
+    .info-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #5a4030; margin-bottom: 4px; }
+    .info-value { font-family: 'Playfair Display', serif; font-size: 16px; color: #f0ece3; }
+    .about-text {
+      background: #130f07;
+      border: 1px solid #2a1a08;
+      border-radius: 14px;
+      padding: 24px 28px;
+      font-size: 15px;
+      color: #8a6a50;
+      line-height: 1.8;
+    }
+    .about-text h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #f0ece3;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 28px 20px;
+      border-top: 1px solid #1a1008;
+      color: #3a2515;
+      font-size: 13px;
+    }
+    footer span { color: #e07b2a; }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #2a1a08, transparent);
+      margin: 32px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="logo-wrap">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+            <!-- Burger bun top -->
+            <ellipse cx="36" cy="18" rx="28" ry="12" fill="#e07b2a"/>
+            <ellipse cx="36" cy="14" rx="24" ry="9" fill="#f59040"/>
+            <!-- Sesame seeds -->
+            <ellipse cx="28" cy="12" rx="3" ry="1.8" fill="#d96a20" transform="rotate(-20,28,12)"/>
+            <ellipse cx="36" cy="9" rx="3" ry="1.8" fill="#d96a20" transform="rotate(10,36,9)"/>
+            <ellipse cx="44" cy="12" rx="3" ry="1.8" fill="#d96a20" transform="rotate(-10,44,12)"/>
+            <!-- Cheese slice -->
+            <rect x="10" y="28" width="52" height="5" rx="1" fill="#f5c842"/>
+            <!-- Lettuce -->
+            <path d="M8 35 Q18 30 28 35 Q38 40 48 35 Q58 30 64 35 L64 38 Q58 33 48 38 Q38 43 28 38 Q18 33 8 38Z" fill="#4a9c3a"/>
+            <!-- Patty -->
+            <rect x="10" y="38" width="52" height="10" rx="3" fill="#6b2e0a"/>
+            <ellipse cx="36" cy="38" rx="26" ry="4" fill="#7a3410"/>
+            <!-- Bun bottom -->
+            <ellipse cx="36" cy="54" rx="28" ry="8" fill="#e07b2a"/>
+            <ellipse cx="36" cy="56" rx="27" ry="5" fill="#c96820"/>
+          </svg>
+        </div>
+        <div class="logo">BURGER<span>BOSS</span></div>
+      </div>
+    </div>
+    <div class="tagline">Toshkentning eng mazali burgerlari</div>
+    <div class="hero-badges">
+      <span class="hero-badge">⭐ 4.8 Reyting</span>
+      <span class="hero-badge">🚀 30 daqiqada yetkazib berish</span>
+      <span class="hero-badge">📍 Yunusobod, Toshkent</span>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="active" onclick="showTab('menu', this)">🍔 Menyu</button>
+  <button onclick="showTab('booking', this)">📅 Joy band qilish</button>
+  <button onclick="showTab('myorders', this)">🛍️ Buyurtmalarim</button>
+  <button onclick="showTab('comments', this)">💬 Izohlar</button>
+  <button onclick="showTab('about', this)">ℹ️ Biz haqimizda</button>
+</nav>
+
+<!-- MENYU -->
+<div id="menu" class="section active">
+  <div class="sec-title">Bizning Menyu</div>
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('barchasi', this)">🍽️ Barchasi</button>
+    <button class="cat-tab" onclick="filterCat('burger', this)">🍔 Burgerlar</button>
+    <button class="cat-tab" onclick="filterCat('tovuq', this)">🍗 Tovuq</button>
+    <button class="cat-tab" onclick="filterCat('yon', this)">🍟 Yon taomlar</button>
+    <button class="cat-tab" onclick="filterCat('ichimlik', this)">🥤 Ichimliklar</button>
+    <button class="cat-tab" onclick="filterCat('dessert', this)">🍰 Desertlar</button>
+  </div>
+  <div class="menu-grid" id="menuGrid"></div>
+  <div class="cart-panel" id="cartPanel">
+    <div class="cart-title">🛒 Sizning savatingiz</div>
+    <div id="cartItems"></div>
+    <div class="cart-total">
+      <span class="cart-total-label">Jami to'lov:</span>
+      <span class="cart-total-price" id="cartTotal">0 so'm</span>
+    </div>
+    <button class="order-btn" onclick="placeOrder()">✓ Buyurtma berish</button>
+    <div class="success-toast" id="orderSuccess">✅ Buyurtmangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.</div>
+  </div>
+</div>
+
+<!-- JOY BAND QILISH -->
+<div id="booking" class="section">
+  <div class="sec-title">Joy Band Qilish</div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label class="form-label">Ism va familiya</label>
+      <input type="text" class="form-input" id="bName" placeholder="Masalan: Abubakir Aminjonov" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Telefon raqam</label>
+      <input type="tel" class="form-input" id="bPhone" placeholder="+998 90 123 45 67" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sana</label>
+      <input type="date" class="form-input" id="bDate" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mehmonlar soni</label>
+      <select class="form-select" id="bGuests">
+        <option>1 kishi</option>
+        <option>2 kishi</option>
+        <option>3 kishi</option>
+        <option>4 kishi</option>
+        <option>5 kishi</option>
+        <option>6 kishi</option>
+        <option>7+ kishi (zal band qilish)</option>
+      </select>
+    </div>
+    <div class="form-group full">
+      <label class="form-label">Vaqtni tanlang</label>
+      <div class="time-grid" id="timeGrid"></div>
+    </div>
+    <div class="form-group full">
+      <label class="form-label">Maxsus xohishlar</label>
+      <textarea class="form-textarea" id="bWish" placeholder="Tug'ilgan kun, romantik kecha, bolalar stoli va h.k."></textarea>
+    </div>
+  </div>
+  <button class="submit-btn" onclick="submitBooking()">📅 Joyni band qilish</button>
+  <div class="success-toast" id="bookSuccess">✅ Joyingiz muvaffaqiyatli band qilindi! Tasdiqlov uchun siz bilan bog'lanamiz.</div>
+
+  <!-- BAND QILINGAN JOYLAR bo'limi -->
+  <div class="section-divider"></div>
+  <div class="sec-title" style="font-size:22px; margin-top:8px;">📋 Band Qilingan Joylar</div>
+  <div class="bookings-list" id="bookingsList">
+    <div class="no-bookings" id="noBookings">Hozircha band qilingan joy yo'q.</div>
+  </div>
+</div>
+
+<!-- BUYURTMALARIM -->
+<div id="myorders" class="section">
+  <div class="sec-title">🛍️ Buyurtmalarim</div>
+  <div class="orders-list" id="ordersList">
+    <div class="no-orders" id="noOrders">Hozircha buyurtma yo'q. Menyudan mahsulot tanlang!</div>
+  </div>
+</div>
+
+<!-- IZOHLAR -->
+<div id="comments" class="section">
+  <div class="sec-title">Mijozlar Izohlari</div>
+  <div class="comments-list" id="commentsList"></div>
+  <div class="sec-title" style="font-size: 22px; margin-top: 8px;">Izoh Qoldiring</div>
+  <div class="form-group">
+    <label class="form-label">Ismingiz</label>
+    <input type="text" class="form-input" id="cName" placeholder="Ismingiz" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">Baho bering</label>
+    <div class="star-row" id="starRow">
+      <span class="star-pick" onclick="setStar(1)">★</span>
+      <span class="star-pick" onclick="setStar(2)">★</span>
+      <span class="star-pick" onclick="setStar(3)">★</span>
+      <span class="star-pick" onclick="setStar(4)">★</span>
+      <span class="star-pick" onclick="setStar(5)">★</span>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Izohingiz</label>
+    <textarea class="form-textarea" id="cText" placeholder="Taassurotlaringizni yozing..."></textarea>
+  </div>
+  <button class="submit-btn" onclick="submitComment()">💬 Izoh yuborish</button>
+  <div class="success-toast" id="commentSuccess">✅ Izohingiz qabul qilindi! Rahmat!</div>
+</div>
+
+<!-- BIZ HAQIMIZDA -->
+<div id="about" class="section">
+  <div class="sec-title">Biz Haqimizda</div>
+  <div class="info-cards">
+    <div class="info-card">
+      <div class="info-icon">📍</div>
+      <div class="info-label">Manzil</div>
+      <div class="info-value">Chilonzor, Toshkent</div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🕐</div>
+      <div class="info-label">Ish vaqti</div>
+      <div class="info-value">06:00 – 23:00</div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">📞</div>
+      <div class="info-label">Telefon</div>
+      <div class="info-value">+998 20 007 02 40</div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">⭐</div>
+      <div class="info-label">Reyting</div>
+      <div class="info-value">4.8 / 5.0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🚚</div>
+      <div class="info-label">Yetkazib berish</div>
+      <div class="info-value">30 daqiqa</div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🎂</div>
+      <div class="info-label">Ochilgan yili</div>
+      <div class="info-value">2026</div>
+    </div>
+  </div>
+  <div class="about-text">
+    <h3>Bizning Hikoyamiz</h3>
+    BurgerBoss 2026-yilda Toshkentda kichik do'kon sifatida ochildi. Bugungi kunda biz Toshkentning eng sevimli fastfood restoraniga aylanib, har kuni yuzlab mijozlarga xizmat ko'rsatmoqdamiz.
+    <br><br>
+    Biz har kuni yangi va yuqori sifatli ingredientlar bilan ishlaymiz. Mol go'shti Samarqand fermerlaridan, sabzavotlar esa mahalliy bog'lardan keltiriladi. Har bir burger sevgi bilan tayyorlanadi!
+    <br><br>
+    <strong style="color: #e07b2a;">Bizning maqsadimiz:</strong> Har bir mijozni xursand qilish va eng mazali burgerni taqdim etish.
+    <br><br>
+    📞 <strong style="color:#e07b2a;">+998 20 007 02 40</strong> &nbsp;|&nbsp; 🕐 <strong style="color:#e07b2a;">06:00 – 23:00</strong> (har kuni)
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  &copy; 2026 <span>BurgerBoss</span> — Barcha huquqlar himoyalangan 🍔
+</footer>
+
+<script>
+  // ---- MENYU MA'LUMOTLARI (50+ mahsulot, real rasmlar) ----
+  const menuItems = [
+    // BURGERLAR (22 ta)
+    { id:1,  name:'Classic Boss',       cat:'burger',   desc:'Mol go\'shti, chedder pishloq, salat, pomidor, maxsus sous',         price:45000, img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80', popular:true  },
+    { id:2,  name:'Double Smash',       cat:'burger',   desc:'2x mol go\'shti patty, bekon, ched, karamelized piyoz',               price:65000, img:'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400&q=80', popular:false },
+    { id:3,  name:'Spicy Inferno',      cat:'burger',   desc:'O\'tkir jalapeno sous, mol go\'shti, qovurilgan piyoz halqa',         price:48000, img:'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=400&q=80', popular:true  },
+    { id:4,  name:'Veggie Delight',     cat:'burger',   desc:'Avokado, grilled sabzavot, pesto sous, briosh non',                   price:38000, img:'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&q=80', popular:false },
+    { id:5,  name:'BBQ Bacon King',     cat:'burger',   desc:'BBQ sous, krtishli bekon, ched, karamelized piyoz, pickle',           price:58000, img:'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&q=80', popular:true  },
+    { id:6,  name:'Mushroom Swiss',     cat:'burger',   desc:'Qo\'ziqorin, shveysariya pishloq, truffle mayo, mol go\'shti',       price:55000, img:'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&q=80', popular:false },
+    { id:7,  name:'Texas Smash',        cat:'burger',   desc:'Ikki qatlam smash patty, texas sous, jalapeno, ched pishloq',         price:70000, img:'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&q=80', popular:true  },
+    { id:8,  name:'Avocado Boss',       cat:'burger',   desc:'Yangi avokado, mol go\'shti, mozzarella, chipotle sous',              price:60000, img:'https://images.unsplash.com/photo-1550317138-10000687a72b?w=400&q=80', popular:false },
+    { id:9,  name:'Truffle Burger',     cat:'burger',   desc:'Truffle yog\'i, mol go\'shti, parmesan, karamelized piyoz',           price:80000, img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&q=80', popular:false },
+    { id:10, name:'Korean Burger',      cat:'burger',   desc:'Gochujang sous, kimchi, mol go\'shti, sesam urug\'i',                 price:62000, img:'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=400&q=80', popular:false },
+    { id:11, name:'Breakfast Burger',   cat:'burger',   desc:'Tuxum, bekon, ched, mol go\'shti, ingliz muffin',                     price:50000, img:'https://images.unsplash.com/photo-1603064752734-4c48eff53d05?w=400&q=80', popular:false },
+    { id:12, name:'Greek Burger',       cat:'burger',   desc:'Feta pishloq, tzatziki, qovoq, mol go\'shti, pita',                  price:57000, img:'https://images.unsplash.com/photo-1582196016295-f8c8bd4b3a99?w=400&q=80', popular:false },
+    { id:13, name:'Smoked BBQ',         cat:'burger',   desc:'Dudlangan mol go\'shti, BBQ, crispy bekon, onion straws',             price:68000, img:'https://images.unsplash.com/photo-1529142739183-891a0e523f6f?w=400&q=80', popular:false },
+    { id:14, name:'Mini Boss (4x)',     cat:'burger',   desc:'4 ta kichik burger, 4 xil sous bilan, do\'stlar uchun',               price:75000, img:'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&q=80', popular:true  },
+    { id:15, name:'Blue Cheese Burger', cat:'burger',   desc:'Gorgonzola pishloq, mol go\'shti, arugula, balsamic',                 price:65000, img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80', popular:false },
+    { id:16, name:'Pulled Pork Burger', cat:'burger',   desc:'Sekin qovurilgan cho\'chqa go\'shti, coleslaw, BBQ',                  price:72000, img:'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&q=80', popular:false },
+    { id:17, name:'Hawaiian Burger',    cat:'burger',   desc:'Ananas, ham, teriyaki sous, mol go\'shti, ched',                      price:56000, img:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80', popular:false },
+    { id:18, name:'Wagyu Boss',         cat:'burger',   desc:'Premium wagyu mol go\'shti, truffle pishloq, caramelized piyoz',      price:120000,img:'https://images.unsplash.com/photo-1613564834361-9436948817d1?w=400&q=80', popular:true  },
+    { id:19, name:'Bacon Crispy',       cat:'burger',   desc:'3 ta bekon, mol go\'shti, ranch sous, pickled jalapeno',              price:52000, img:'https://images.unsplash.com/photo-1548340748-6d2b7d7da280?w=400&q=80', popular:false },
+    { id:20, name:'Tex-Mex Burger',     cat:'burger',   desc:'Guacamole, salsa, nachos, mol go\'shti, jalapeno',                    price:59000, img:'https://images.unsplash.com/photo-1601004890657-03634b4bdbb6?w=400&q=80', popular:false },
+    { id:21, name:'Smash & Burn',       cat:'burger',   desc:'Extra o\'tkir carolina reaper sous, 2x patty, krispy piyoz',          price:74000, img:'https://images.unsplash.com/photo-1553460168-b08fdb0e44de?w=400&q=80', popular:false },
+    { id:22, name:'Club Boss',          cat:'burger',   desc:'3 qatlam non, 2x patty, bekon, tuxum, salat, pomidor',               price:85000, img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80', popular:false },
+
+    // TOVUQ (22 ta)
+    { id:23, name:'Crispy Chicken',     cat:'tovuq',    desc:'Crispy tovuq fileti, ranch sous, karam, pomidor',                     price:42000, img:'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&q=80', popular:true  },
+    { id:24, name:'Chicken Strips (5)', cat:'tovuq',    desc:'5 ta crispy tovuq, 2 xil sous bilan',                                 price:35000, img:'https://images.unsplash.com/photo-1598229680736-a00f5f88c22f?w=400&q=80', popular:false },
+    { id:25, name:'Spicy Chicken',      cat:'tovuq',    desc:'Nashville hot sous, crispy tovuq, pickle, butter toast',              price:46000, img:'https://images.unsplash.com/photo-1615361200141-f45040f367be?w=400&q=80', popular:true  },
+    { id:26, name:'Grilled Chicken',    cat:'tovuq',    desc:'Grilled tovuq, avokado, pesto, briosh non',                           price:44000, img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80', popular:false },
+    { id:27, name:'Buffalo Wings (8)',  cat:'tovuq',    desc:'8 ta buffalo wings, blue cheese sous, ranch, selery',                 price:52000, img:'https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=400&q=80', popular:true  },
+    { id:28, name:'Chicken Tenders',    cat:'tovuq',    desc:'3 ta crispy tender, honey mustard, BBQ sous',                         price:38000, img:'https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80', popular:false },
+    { id:29, name:'Korean Fried Chick', cat:'tovuq',    desc:'Gochujang glazed, sesam, green onion, rice cake',                     price:55000, img:'https://images.unsplash.com/photo-1575932444877-5106bee2a599?w=400&q=80', popular:false },
+    { id:30, name:'Chicken Wrap',       cat:'tovuq',    desc:'Grilled tovuq, lavash, salat, pomidor, ranch, karam',                 price:36000, img:'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80', popular:false },
+    { id:31, name:'Nuggets 12 ta',      cat:'tovuq',    desc:'12 ta crispy nuggets, BBQ va ranch sous bilan',                       price:32000, img:'https://images.unsplash.com/photo-1562967916-eb82221dfb92?w=400&q=80', popular:false },
+    { id:32, name:'Chicken Quesadilla', cat:'tovuq',    desc:'Tovuq, ched pishloq, jalapeno, sour cream, tortilla',                 price:48000, img:'https://images.unsplash.com/photo-1618040996337-56904b7850b9?w=400&q=80', popular:false },
+    { id:33, name:'Popcorn Chicken',    cat:'tovuq',    desc:'Mini crispy parçalar, spicy va honey dipping sauce',                  price:28000, img:'https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&q=80', popular:false },
+    { id:34, name:'Chicken Caesar',     cat:'tovuq',    desc:'Grilled tovuq, romaine, caesar sous, crouton, parmesan',              price:40000, img:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80', popular:false },
+    { id:35, name:'Hot Honey Chicken',  cat:'tovuq',    desc:'Hot honey glaze, crispy tovuq, pickled cucumber, briosh',             price:50000, img:'https://images.unsplash.com/photo-1603064752734-4c48eff53d05?w=400&q=80', popular:true  },
+    { id:36, name:'Teriyaki Chicken',   cat:'tovuq',    desc:'Teriyaki sous, grilled tovuq, pineapple salsa, sesam non',            price:47000, img:'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&q=80', popular:false },
+    { id:37, name:'Garlic Parmesan',    cat:'tovuq',    desc:'Garlic butter wings, parmesan, parsley, lemon',                       price:54000, img:'https://images.unsplash.com/photo-1598229680736-a00f5f88c22f?w=400&q=80', popular:false },
+    { id:38, name:'Chicken Bucket',     cat:'tovuq',    desc:'8 ta mixed pieces: legs, wings, breast, thigh',                      price:95000, img:'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&q=80', popular:true  },
+    { id:39, name:'Chicken Slider (3)', cat:'tovuq',    desc:'3 ta mini crispy chicken slider, 3 xil sous',                        price:42000, img:'https://images.unsplash.com/photo-1575932444877-5106bee2a599?w=400&q=80', popular:false },
+    { id:40, name:'Crispy Fish Burger', cat:'tovuq',    desc:'Crispy baliq fileti, tartar sous, karam, pomidor',                    price:45000, img:'https://images.unsplash.com/photo-1596560548464-f010549b84d7?w=400&q=80', popular:false },
+    { id:41, name:'Chicken Parmo',      cat:'tovuq',    desc:'Italyan usulida tovuq parmigiyana, mozzarella, pomidor sous',         price:60000, img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80', popular:false },
+    { id:42, name:'Za\'atar Chicken',   cat:'tovuq',    desc:'Za\'atar spice rub, grilled chicken, hummus, flatbread',              price:53000, img:'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=400&q=80', popular:false },
+    { id:43, name:'Chimichurri Chick',  cat:'tovuq',    desc:'Argentincha chimichurri, grilled tovuq, corn salsa',                  price:56000, img:'https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=400&q=80', popular:false },
+    { id:44, name:'Smoky Chicken Melt', cat:'tovuq',    desc:'Smoked chicken, gruyere, caramelized onion, sourdough',               price:58000, img:'https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80', popular:false },
+
+    // YON TAOMLAR (12 ta)
+    { id:45, name:'Boss Combo',         cat:'yon',      desc:'Istalgan burger + kartoshka fri + ichimlik',                          price:75000, img:'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80', popular:true  },
+    { id:46, name:'Onion Rings',        cat:'yon',      desc:'Crispy piyoz halqalari, chipotle sous',                               price:22000, img:'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&q=80', popular:false },
+    { id:47, name:'Waffle Fries',       cat:'yon',      desc:'Waffle shaklidagi kartoshka fri, ched sous bilan',                    price:24000, img:'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=400&q=80', popular:true  },
+    { id:48, name:'Sweet Potato Fries', cat:'yon',      desc:'Shirin qizil kartoshka fri, sriracha mayo',                           price:26000, img:'https://images.unsplash.com/photo-1554244933-d876deb6b2ff?w=400&q=80', popular:false },
+    { id:49, name:'Mac & Cheese',       cat:'yon',      desc:'Kremli mac and cheese, crispy breadcrumb topping',                    price:30000, img:'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=400&q=80', popular:false },
+    { id:50, name:'Coleslaw',           cat:'yon',      desc:'Yangi karam salat, ranch sous, apple cider vinegar',                  price:16000, img:'https://images.unsplash.com/photo-1516100882582-96c3a05fe590?w=400&q=80', popular:false },
+    { id:51, name:'Garlic Bread',       cat:'yon',      desc:'Garlic butter, parsley, toasted sourdough bread',                     price:18000, img:'https://images.unsplash.com/photo-1619977734895-c5c68f5b0e9a?w=400&q=80', popular:false },
+    { id:52, name:'Cheese Sticks',      cat:'yon',      desc:'6 ta mozzarella cheese stick, marinara sous',                         price:28000, img:'https://images.unsplash.com/photo-1619977734895-c5c68f5b0e9a?w=400&q=80', popular:false },
+    { id:53, name:'Loaded Fries',       cat:'yon',      desc:'Kartoshka fri, ched sous, jalapeño, bekon, sour cream',               price:35000, img:'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80', popular:true  },
+    { id:54, name:'Corn Dog',           cat:'yon',      desc:'Amerikacha corn dog, mustard va ketchup bilan',                       price:20000, img:'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80', popular:false },
+    { id:55, name:'Pretzel Bites',      cat:'yon',      desc:'10 ta pretzel, beer cheese va mustard sous',                          price:25000, img:'https://images.unsplash.com/photo-1548340748-6d2b7d7da280?w=400&q=80', popular:false },
+    { id:56, name:'Guacamole & Chips',  cat:'yon',      desc:'Yangi guacamole, tortilla chips, pico de gallo',                      price:28000, img:'https://images.unsplash.com/photo-1548369937-47519962c11a?w=400&q=80', popular:false },
+
+    // ICHIMLIKLAR (12 ta)
+    { id:57, name:'Milkshake Shokolad', cat:'ichimlik', desc:'Belgiyscha shokolad, yangi sut, premium icecream',                    price:22000, img:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80', popular:true  },
+    { id:58, name:'Milkshake Vanil',    cat:'ichimlik', desc:'Madagaskar vanilla, yangi sut, whipped cream',                       price:22000, img:'https://images.unsplash.com/photo-1568901839119-631418a3910d?w=400&q=80', popular:false },
+    { id:59, name:'Fresh Orange Juice', cat:'ichimlik', desc:'Yangi siqilgan apelsin sharbati, buzmas vitaminlar',                  price:18000, img:'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80', popular:false },
+    { id:60, name:'Tarvuz Juice',       cat:'ichimlik', desc:'Yangi tarvuz sharbati, muzli, limon bilan',                           price:16000, img:'https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400&q=80', popular:false },
+    { id:61, name:'Mango Smoothie',     cat:'ichimlik', desc:'Mango, banana, ko\'k choy, coconut sut',                              price:20000, img:'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&q=80', popular:false },
+    { id:62, name:'Cola 0.5L',          cat:'ichimlik', desc:'Sovuq Coca-Cola, muz va limon bilan',                                 price:12000, img:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=400&q=80', popular:false },
+    { id:63, name:'Sprite 0.5L',        cat:'ichimlik', desc:'Sovuq Sprite, muz va nanachi bilan',                                  price:12000, img:'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80', popular:false },
+    { id:64, name:'Lemonade Boss',      cat:'ichimlik', desc:'Uy limonadi, limon, nanachi, qand, muz',                              price:18000, img:'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80', popular:true  },
+    { id:65, name:'Iced Coffee',        cat:'ichimlik', desc:'Cold brew kofe, sut, caramel va vanil sharbati',                      price:24000, img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80', popular:false },
+    { id:66, name:'Berry Smoothie',     cat:'ichimlik', desc:'Qulupnay, chernichka, yogurt, asal, yogurt',                          price:22000, img:'https://images.unsplash.com/photo-1553530979-7ee52a2670c4?w=400&q=80', popular:false },
+    { id:67, name:'Peach Ice Tea',      cat:'ichimlik', desc:'Shaftoli murabbo, choy, limon, muz',                                  price:16000, img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80', popular:false },
+    { id:68, name:'Mineral Water',      cat:'ichimlik', desc:'Sovuq mineral suv 0.5L, gazli yoki gazsiz',                           price:8000,  img:'https://images.unsplash.com/photo-1564419320461-6870880221ad?w=400&q=80', popular:false },
+
+    // DESERTLAR (10 ta)
+    { id:69, name:'Brownie Boss',       cat:'dessert',  desc:'Issiq shokolad brownie, vanilla icecream, caramel sous',              price:28000, img:'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=400&q=80', popular:true  },
+    { id:70, name:'Cheesecake',         cat:'dessert',  desc:'Nyu-York usulida cheesecake, strawberry topping',                     price:30000, img:'https://images.unsplash.com/photo-1578775887804-699de7086ff9?w=400&q=80', popular:false },
+    { id:71, name:'Churros (5 ta)',     cat:'dessert',  desc:'5 ta churros, shokolad va dulce de leche sous',                       price:22000, img:'https://images.unsplash.com/photo-1624613986064-bce5a4564d9d?w=400&q=80', popular:false },
+    { id:72, name:'Waffles',            cat:'dessert',  desc:'Belgiyscha waffle, fresh strawberry, maple syrup, cream',             price:32000, img:'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=400&q=80', popular:true  },
+    { id:73, name:'Ice Cream Sundae',   cat:'dessert',  desc:'3 ta icecream, hot fudge, whipped cream, cherry',                     price:26000, img:'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&q=80', popular:false },
+    { id:74, name:'Donut Glaze (3)',    cat:'dessert',  desc:'3 ta glazed donut, sprinkles va jam filling',                         price:20000, img:'https://images.unsplash.com/photo-1565710558819-fd0de0a71379?w=400&q=80', popular:false },
+    { id:75, name:'Molten Cake',        cat:'dessert',  desc:'Issiq shokolad keki, icecream bilan, ichidan oqadi',                  price:35000, img:'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80', popular:false },
+    { id:76, name:'Banana Split',       cat:'dessert',  desc:'Banan, 3 xil icecream, shokolad, strawberry, va karamel',             price:30000, img:'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', popular:false },
+    { id:77, name:'Cotton Candy',       cat:'dessert',  desc:'Qo\'ziqorin shakar paxta, renkli, bayramsona',                        price:15000, img:'https://images.unsplash.com/photo-1567745257810-4adf7f2a97b6?w=400&q=80', popular:false },
+    { id:78, name:'Creme Brulee',       cat:'dessert',  desc:'Klassik fransuz creme brulee, caramelized crust',                     price:38000, img:'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=400&q=80', popular:false },
+  ];
+
+  let cart = {};
+  let currentCat = 'barchasi';
+  let selectedTime = '';
+  let starRating = 0;
+  let bookings = [];
+  let myOrders = [];
+  let orderCounter = 1001;
+
+  let comments = [
+    { name:'Jasur T.',   stars:5, text:'Toshkentdagi eng zo\'r burger! Double Smash ni har kelganimda ovorman.',        date:'10.04.2025' },
+    { name:'Malika R.',  stars:5, text:'Xizmat darajasi a\'lo, toza va qulay muhit. Albatta qayta kelaman!',            date:'08.04.2025' },
+    { name:'Bobur S.',   stars:4, text:'Spicy Inferno \'t rostdan ham o\'tkir ekan, maza qildi! Tavsiya qilaman.',     date:'05.04.2025' },
+    { name:'Nodira A.',  stars:5, text:'Crispy Chicken hayotimda yeganim eng mazzali tovuq burger. Rahmat BurgerBoss!', date:'02.04.2025' },
+  ];
+
+  function fmt(n) { return n.toLocaleString('uz-UZ') + ' so\'m'; }
+
+  function showTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    if (id === 'myorders') renderMyOrders();
+    if (id === 'booking')  renderBookings();
+  }
+
+  function filterCat(cat, btn) {
+    currentCat = cat;
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMenu();
+  }
+
+  function renderMenu() {
+    const items = currentCat === 'barchasi' ? menuItems : menuItems.filter(i => i.cat === currentCat);
+    document.getElementById('menuGrid').innerHTML = items.map(item => {
+      const qty = cart[item.id] || 0;
+      return `
+        <div class="menu-card ${qty > 0 ? 'selected' : ''}">
+          <div class="card-img">
+            <img src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.parentElement.style.fontSize='60px'; this.parentElement.style.display='flex'; this.style.display='none';" />
+          </div>
+          <div class="card-body">
+            <div class="card-name">
+              ${item.name}
+              ${item.popular ? '<span class="card-badge">🔥 Mashhur</span>' : ''}
+            </div>
+            <div class="card-desc">${item.desc}</div>
+            <div class="card-footer">
+              <div class="card-price">${fmt(item.price)} <small>/ dona</small></div>
+              <div class="qty-ctrl">
+                <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                <span class="qty-num">${qty}</span>
+                <button class="qty-btn" onclick="changeQty(${item.id}, +1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function changeQty(id, delta) {
+    const current = cart[id] || 0;
+    const next = current + delta;
+    if (next <= 0) delete cart[id];
+    else cart[id] = next;
+    renderMenu();
+    renderCart();
+  }
+
+  function renderCart() {
+    const keys = Object.keys(cart);
+    const panel = document.getElementById('cartPanel');
+    if (!keys.length) { panel.classList.remove('show'); return; }
+    panel.classList.add('show');
+    let total = 0;
+    const html = keys.map(id => {
+      const item = menuItems.find(m => m.id == id);
+      const sub = item.price * cart[id];
+      total += sub;
+      return `
+        <div class="cart-item">
+          <span class="cart-item-name">${item.name} × ${cart[id]}</span>
+          <span class="cart-item-right">
+            <span class="cart-item-price">${fmt(sub)}</span>
+            <button class="cart-remove" onclick="changeQty(${id}, -1)">−</button>
+          </span>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('cartItems').innerHTML = html;
+    document.getElementById('cartTotal').textContent = fmt(total);
+  }
+
+  function placeOrder() {
+    const keys = Object.keys(cart);
+    if (!keys.length) return;
+    let total = 0;
+    const items = keys.map(id => {
+      const item = menuItems.find(m => m.id == id);
+      const sub = item.price * cart[id];
+      total += sub;
+      return { name: item.name, qty: cart[id], price: sub };
+    });
+    const now = new Date();
+    const dateStr = `${now.getDate().toString().padStart(2,'0')}.${(now.getMonth()+1).toString().padStart(2,'0')}.${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    myOrders.unshift({ id: '#BB-' + orderCounter++, items, total, date: dateStr, status: 'cooking' });
+    cart = {};
+    renderMenu();
+    renderCart();
+    const msg = document.getElementById('orderSuccess');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 5000);
+  }
+
+  function renderMyOrders() {
+    const el = document.getElementById('ordersList');
+    if (!myOrders.length) {
+      el.innerHTML = '<div class="no-orders">Hozircha buyurtma yo\'q. Menyudan mahsulot tanlang!</div>';
+      return;
+    }
+    el.innerHTML = myOrders.map(o => {
+      const statusLabels = { cooking: '🍳 Tayyorlanmoqda', delivered: '✅ Yetkazildi', pending: '⏳ Kutilmoqda' };
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-id">${o.id}</div>
+            <div class="order-status ${o.status}">${statusLabels[o.status]}</div>
+          </div>
+          <div class="order-items-list">
+            ${o.items.map(i => `<div class="order-item-row"><span>${i.name} × ${i.qty}</span><span style="color:#e07b2a">${fmt(i.price)}</span></div>`).join('')}
+          </div>
+          <div class="order-footer">
+            <div class="order-date">📅 ${o.date}</div>
+            <div class="order-total-price">Jami: ${fmt(o.total)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // VAQT TANLASH
+  const times = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'];
+
+  function renderTimes() {
+    document.getElementById('timeGrid').innerHTML = times.map(t => `
+      <button class="time-btn ${selectedTime === t ? 'sel' : ''}" onclick="selTime('${t}')">${t}</button>
+    `).join('');
+  }
+
+  function selTime(t) { selectedTime = t; renderTimes(); }
+
+  // JOY BAND QILISH
+  function submitBooking() {
+    const name  = document.getElementById('bName').value.trim();
+    const phone = document.getElementById('bPhone').value.trim();
+    const date  = document.getElementById('bDate').value;
+    const guests = document.getElementById('bGuests').value;
+    const wish  = document.getElementById('bWish').value.trim();
+    if (!name)         { alert('Iltimos, ismingizni kiriting!'); return; }
+    if (!phone)        { alert('Iltimos, telefon raqamingizni kiriting!'); return; }
+    if (!date)         { alert('Iltimos, sanani tanlang!'); return; }
+    if (!selectedTime) { alert('Iltimos, vaqtni tanlang!'); return; }
+
+    bookings.unshift({ name, phone, date, time: selectedTime, guests, wish });
+
+    document.getElementById('bName').value  = '';
+    document.getElementById('bPhone').value = '';
+    document.getElementById('bDate').value  = '';
+    document.getElementById('bWish').value  = '';
+    selectedTime = '';
+    renderTimes();
+    renderBookings();
+
+    const msg = document.getElementById('bookSuccess');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 5000);
+  }
+
+  function cancelBooking(idx) {
+    if (confirm('Haqiqatan ham bu band qilishni bekor qilmoqchimisiz?')) {
+      bookings.splice(idx, 1);
+      renderBookings();
+    }
+  }
+
+  function renderBookings() {
+    const el = document.getElementById('bookingsList');
+    if (!bookings.length) {
+      el.innerHTML = '<div class="no-bookings">Hozircha band qilingan joy yo\'q.</div>';
+      return;
+    }
+    el.innerHTML = bookings.map((b, i) => `
+      <div class="booking-card">
+        <div class="booking-info">
+          <div class="booking-name">👤 ${b.name}</div>
+          <div class="booking-details">📞 ${b.phone} &nbsp;|&nbsp; 📅 ${b.date} soat ${b.time} &nbsp;|&nbsp; 👥 ${b.guests}</div>
+          ${b.wish ? `<div style="font-size:12px; color:#5a4030; margin-top:4px;">💬 ${b.wish}</div>` : ''}
+        </div>
+        <div class="booking-meta">
+          <span class="booking-tag">✅ Tasdiqlangan</span>
+          <button class="booking-cancel" onclick="cancelBooking(${i})">✕ Bekor qilish</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // YULDUZCHA BAHO
+  function setStar(n) {
+    starRating = n;
+    document.querySelectorAll('.star-pick').forEach((s, i) => {
+      s.classList.toggle('lit', i < n);
+    });
+  }
+
+  // IZOHLAR
+  function renderComments() {
+    document.getElementById('commentsList').innerHTML = comments.map(c => {
+      const initials = c.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const stars    = '★'.repeat(c.stars) + '☆'.repeat(5 - c.stars);
+      return `
+        <div class="comment-card">
+          <div class="c-header">
+            <div class="avatar">${initials}</div>
+            <div>
+              <div class="c-name">${c.name}</div>
+              <div class="stars">${stars}</div>
+              <div class="c-meta">${c.date}</div>
+            </div>
+          </div>
+          <div class="c-text">${c.text}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function submitComment() {
+    const name = document.getElementById('cName').value.trim();
+    const text = document.getElementById('cText').value.trim();
+    if (!name)       { alert('Iltimos, ismingizni kiriting!'); return; }
+    if (!starRating) { alert('Iltimos, baho bering (yulduzchalarni bosing)!'); return; }
+    if (!text)       { alert('Iltimos, izoh yozing!'); return; }
+    const today = new Date();
+    const date  = `${today.getDate().toString().padStart(2,'0')}.${(today.getMonth()+1).toString().padStart(2,'0')}.${today.getFullYear()}`;
+    comments.unshift({ name, stars: starRating, text, date });
+    document.getElementById('cName').value = '';
+    document.getElementById('cText').value = '';
+    starRating = 0;
+    setStar(0);
+    renderComments();
+    const msg = document.getElementById('commentSuccess');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 4000);
+  }
+
+  // ISHGA TUSHIRISH
+  renderMenu();
+  renderTimes();
+  renderComments();
+</script>
+</body>
+</html>
